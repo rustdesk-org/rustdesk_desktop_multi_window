@@ -98,4 +98,9 @@ abstract class WindowController {
   ///
   /// This is only valid in x11/Linux.
   Future<int> getXID();
+
+  /// Most useful for ensuring windows *cannot* be resized. Windows are
+  /// resizable by default, so there is no need to explicitly define a window
+  /// as resizable by calling this function.
+  Future<void> resizable(bool resizable);
 }
