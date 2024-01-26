@@ -166,6 +166,20 @@ void BaseFlutterWindow::SetFullscreen(bool fullscreen) {
     }
 }
 
+void BaseFlutterWindow::Resizable(bool resizable) {
+    auto window = GetWindowHandle();
+    if (!window) {
+        return;
+    }
+    DWORD gwlStyle = GetWindowLong(window, GWL_STYLE);
+    if (resizable) {
+      gwlStyle |= WS_THICKFRAME;
+    } else {
+      gwlStyle &= ~WS_THICKFRAME;
+    }
+    ::SetWindowLong(window, GWL_STYLE, gwlStyle);
+}
+
 void BaseFlutterWindow::StartDragging() {
     auto window = GetWindowHandle();
     if (!window) {

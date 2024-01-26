@@ -233,6 +233,14 @@ class MultiWindowManager {
         }
         return window.setPreventClose(setPreventClose: setPreventClose)
     }
+  
+  func resizable(windowId: Int64, resizable: Bool) {
+    guard let window = windows[windowId] else {
+      debugPrint("window \(windowId) not exists.")
+      return
+    }
+    window.resizable(resizable: resizable)
+  }
 }
 
 protocol WindowManagerDelegate: AnyObject {

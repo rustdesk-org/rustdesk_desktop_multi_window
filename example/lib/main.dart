@@ -6,7 +6,6 @@ import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/services/mouse_cursor.dart';
 import 'package:flutter_multi_window_example/event_widget.dart';
-import 'dart:ui' as ui;
 
 int winId = 0;
 
@@ -21,6 +20,7 @@ void main(List<String> args) async {
     WindowController.fromWindowId(windowId).showTitleBar(false);
     WindowController.fromWindowId(windowId).show();
     WindowController.fromWindowId(windowId).focus();
+    WindowController.fromWindowId(windowId).resizable(false);
     runApp(_ExampleSubWindow(
       windowController: WindowController.fromWindowId(windowId),
       args: argument,
@@ -247,8 +247,9 @@ class _SubWindowContentState extends State<SubWindowContent>
                 onPressed: () async {
                   isPreventClose = !isPreventClose;
                   widget.windowController.setPreventClose(isPreventClose);
-      
-                  isPreventClose = await widget.windowController.isPreventClose();
+
+                  isPreventClose =
+                      await widget.windowController.isPreventClose();
                   setState(() {});
                 },
                 child: Text(!isPreventClose

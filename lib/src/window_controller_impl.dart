@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -59,15 +57,15 @@ class WindowControllerMainImpl extends WindowController {
     final Map<String, dynamic> arguments = {
       'windowId': _id,
     };
-    final Map<dynamic, dynamic> resultData = await _channel.invokeMethod(
+    final Map<dynamic, double> resultData = (await _channel.invokeMethod(
       'getFrame',
       arguments,
-    );
+    ))!;
     return Rect.fromLTWH(
-      resultData['x'],
-      resultData['y'],
-      resultData['width'],
-      resultData['height'],
+      resultData['x']!,
+      resultData['y']!,
+      resultData['width']!,
+      resultData['height']!,
     );
   }
 
@@ -190,5 +188,13 @@ class WindowControllerMainImpl extends WindowController {
     final Map<String, dynamic> arguments = {'windowId': _id};
     return await _channel.invokeMethod<bool>('isFullScreen', arguments) ??
         false;
+  }
+  
+  @override
+  Future<void> resizable(bool resizable) {
+    return _channel.invokeMethod('resizable', <String, dynamic>{
+        'windowId': _id,
+        'resizable': resizable,
+    });
   }
 }

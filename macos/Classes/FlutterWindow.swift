@@ -153,6 +153,14 @@ class BaseFlutterWindow: NSObject {
     func setPreventClose(setPreventClose: Bool) {
         _isPreventClose = setPreventClose
     }
+  
+  func resizable(resizable: Bool) {
+    if (resizable) {
+      window.styleMask.insert(.resizable)
+    } else {
+      window.styleMask.remove(.resizable)
+    }
+  }
 }
 
 /// Add extra hooks for window

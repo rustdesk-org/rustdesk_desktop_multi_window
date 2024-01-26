@@ -124,6 +124,13 @@ void DesktopMultiWindowPlugin::HandleMethodCall(
     MultiWindowManager::Instance()->SetFullscreen(window_id, fullscreen);
     result->Success();
     return;
+  } else if (method_call.method_name() == "resizable") {
+    auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    auto window_id = arguments->at(flutter::EncodableValue("windowId")).LongValue();
+    auto resizable = std::get<bool>(arguments->at(flutter::EncodableValue("resizable")));
+    MultiWindowManager::Instance()->Resizable(window_id, resizable);
+    result->Success();
+    return;
   } else if (method_call.method_name() == "isFullscreen") {
     auto *arguments =
         std::get_if<flutter::EncodableMap>(method_call.arguments());

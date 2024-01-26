@@ -160,6 +160,13 @@ auto window = windows_.find(id);
   }
 }
 
+void MultiWindowManager::Resizable(int64_t id, bool resizable) {
+  auto window = windows_.find(id);
+  if (window != windows_.end()) {
+    window->second->Resizable(resizable);
+  }
+}
+
 std::vector<int64_t> MultiWindowManager::GetAllSubWindowIds() {
   std::vector<int64_t> ids;
   for (auto &window : windows_) {

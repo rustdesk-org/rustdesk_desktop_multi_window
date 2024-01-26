@@ -31,6 +31,8 @@ class BaseFlutterWindow {
 
   void SetFullscreen(bool fullscreen);
 
+  void Resizable(bool resizable);
+
   void Maximize(const flutter::EncodableMap& args);
 
   void SetTitleBarStyle(const flutter::EncodableMap& args);
