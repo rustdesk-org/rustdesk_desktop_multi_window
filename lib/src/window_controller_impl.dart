@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -196,5 +198,22 @@ class WindowControllerMainImpl extends WindowController {
         'windowId': _id,
         'resizable': resizable,
     });
+  }
+
+  double getDevicePixelRatio() {
+    // Subsequent version, remove this deprecated member.
+    // ignore: deprecated_member_use
+    return window.devicePixelRatio;
+  }
+
+  @override
+  Future<void> setMinimumSize(Size size) async {
+    final Map<String, dynamic> arguments = {
+      'windowId': _id,
+      'devicePixelRatio': getDevicePixelRatio(),
+      'width': size.width,
+      'height': size.height,
+    };
+    await _channel.invokeMethod('setMinimumSize', arguments);
   }
 }

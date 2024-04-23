@@ -103,4 +103,7 @@ abstract class WindowController {
   /// resizable by default, so there is no need to explicitly define a window
   /// as resizable by calling this function.
   Future<void> resizable(bool resizable);
+
+  /// Sets the minimum size of window to `width` and `height`.
+  Future<void> setMinimumSize(Size size);
 }

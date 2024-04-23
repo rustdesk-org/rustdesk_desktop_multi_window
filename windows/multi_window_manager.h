@@ -51,6 +51,8 @@ class MultiWindowManager : public std::enable_shared_from_this<MultiWindowManage
 
   void Resizable(int64_t id, bool resizable);
 
+  void SetMinimumSize(int64_t id, const flutter::EncodableMap& args);
+
   bool IsPreventClose(int64_t id);
 
   void SetPreventClose(int64_t id, bool setPreventClose);

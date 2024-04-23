@@ -161,6 +161,12 @@ public class FlutterMultiWindowPlugin: NSObject, FlutterPlugin {
       let resizable = arguments["resizable"] as! Bool
       MultiWindowManager.shared.resizable(windowId: windowId, resizable: resizable)
       result(nil)
+    case "setMinimumSize":
+      let arguments = call.arguments as? [String: Any?] ?? [:]
+      let windowId = arguments["windowId"] as! Int64
+      MultiWindowManager.shared.setMinimumSize(windowId: windowId, args: arguments)
+      result(true)
+      break
     default:
       result(FlutterMethodNotImplemented)
     }
