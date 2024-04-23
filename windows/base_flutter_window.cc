@@ -180,6 +180,22 @@ void BaseFlutterWindow::Resizable(bool resizable) {
     ::SetWindowLong(window, GWL_STYLE, gwlStyle);
 }
 
+void BaseFlutterWindow::SetMinimumSize(const flutter::EncodableMap& args) {
+  // double devicePixelRatio =
+  //     std::get<double>(args.at(flutter::EncodableValue("devicePixelRatio")));
+  double width = std::get<double>(args.at(flutter::EncodableValue("width")));
+  double height = std::get<double>(args.at(flutter::EncodableValue("height")));
+
+  if (width >= 0 && height >= 0) {
+    // pixel_ratio_ = devicePixelRatio;
+    POINT point = {};
+    point.x = static_cast<LONG>(width);
+    point.y = static_cast<LONG>(height);
+    // minimum_size_ = point;
+    // TODO:
+  }
+}
+
 void BaseFlutterWindow::StartDragging() {
     auto window = GetWindowHandle();
     if (!window) {

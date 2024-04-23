@@ -161,6 +161,14 @@ class BaseFlutterWindow: NSObject {
       window.styleMask.remove(.resizable)
     }
   }
+
+  func setMinimumSize(args: [String: Any]) {
+    let minSize: NSSize = NSSize(
+        width: CGFloat((args["width"] as! NSNumber).floatValue),
+        height: CGFloat((args["height"] as! NSNumber).floatValue)
+    )
+    window.minSize = minSize
+  }
 }
 
 /// Add extra hooks for window

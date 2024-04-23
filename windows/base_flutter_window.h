@@ -33,6 +33,8 @@ class BaseFlutterWindow {
 
   void Resizable(bool resizable);
 
+  void SetMinimumSize(const flutter::EncodableMap& args);
+
   void Maximize(const flutter::EncodableMap& args);
 
   void SetTitleBarStyle(const flutter::EncodableMap& args);

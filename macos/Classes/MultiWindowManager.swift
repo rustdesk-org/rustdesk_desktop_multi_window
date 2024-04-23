@@ -241,6 +241,14 @@ class MultiWindowManager {
     }
     window.resizable(resizable: resizable)
   }
+
+  func setMinimumSize(windowId: Int64, args: [String: Any]) {
+    guard let window = windows[windowId] else {
+      debugPrint("window \(windowId) not exists.")
+      return
+    }
+    window.setMinimumSize(args: args)
+  }
 }
 
 protocol WindowManagerDelegate: AnyObject {

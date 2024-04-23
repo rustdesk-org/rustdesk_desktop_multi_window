@@ -200,6 +200,12 @@ void DesktopMultiWindowPlugin::HandleMethodCall(
     auto res = MultiWindowManager::Instance()->IsPreventClose(window_id);
     result->Success(flutter::EncodableValue(res));
     return;
+  } else if (method_call.method_name() == "setMinimumSize") {
+    // auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    // auto window_id = arguments->at(flutter::EncodableValue("windowId")).LongValue();
+    // MultiWindowManager::Instance()->SetMinimumSize(window_id, arguments);
+    result->Success();
+    return;
   }
   result->NotImplemented();
 }
