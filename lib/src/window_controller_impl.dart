@@ -57,7 +57,7 @@ class WindowControllerMainImpl extends WindowController {
     final Map<String, dynamic> arguments = {
       'windowId': _id,
     };
-    final Map<dynamic, double> resultData = (await _channel.invokeMethod(
+    final Map<dynamic, dynamic> resultData = (await _channel.invokeMethod(
       'getFrame',
       arguments,
     ))!;
