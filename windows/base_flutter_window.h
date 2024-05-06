@@ -39,6 +39,8 @@ class BaseFlutterWindow {
 
   void SetTitleBarStyle(const flutter::EncodableMap& args);
 
+  void SetAlwaysOnTop(const flutter::EncodableMap *args);
+
   void SetAsFrameless();
 
   void Restore();

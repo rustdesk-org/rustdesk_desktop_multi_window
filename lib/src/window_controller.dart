@@ -106,4 +106,7 @@ abstract class WindowController {
 
   /// Sets the minimum size of window to `width` and `height`.
   Future<void> setMinimumSize(Size size);
+
+  /// Sets whether the window should show always on top of other windows.
+  Future<void> setAlwaysOnTop(bool isAlwaysOnTop);
 }
