@@ -53,6 +53,8 @@ class MultiWindowManager : public std::enable_shared_from_this<MultiWindowManage
 
   void SetMinimumSize(int64_t id, const flutter::EncodableMap& args);
 
+  void SetAlwaysOnTop(int64_t id, const flutter::EncodableMap *args);
+
   bool IsPreventClose(int64_t id);
 
   void SetPreventClose(int64_t id, bool setPreventClose);

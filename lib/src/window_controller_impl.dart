@@ -216,4 +216,13 @@ class WindowControllerMainImpl extends WindowController {
     };
     await _channel.invokeMethod('setMinimumSize', arguments);
   }
+
+  @override
+  Future<void> setAlwaysOnTop(bool isAlwaysOnTop) async {
+    final Map<String, dynamic> arguments = {
+      'windowId': _id,
+      'isAlwaysOnTop': isAlwaysOnTop,
+    };
+    await _channel.invokeMethod('setAlwaysOnTop', arguments);
+  }
 }

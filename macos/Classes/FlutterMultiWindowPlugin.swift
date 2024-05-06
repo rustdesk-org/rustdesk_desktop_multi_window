@@ -162,9 +162,15 @@ public class FlutterMultiWindowPlugin: NSObject, FlutterPlugin {
       MultiWindowManager.shared.resizable(windowId: windowId, resizable: resizable)
       result(nil)
     case "setMinimumSize":
-      let arguments = call.arguments as? [String: Any?] ?? [:]
-      let windowId = arguments["windowId"] as! Int64
-      MultiWindowManager.shared.setMinimumSize(windowId: windowId, args: arguments)
+      let args = call.arguments as? [String: Any?] ?? [:]
+      let windowId = args["windowId"] as! Int64
+      MultiWindowManager.shared.setMinimumSize(windowId: windowId, args: args)
+      result(true)
+      break
+    case "setAlwaysOnTop":
+      let args = call.arguments as? [String: Any?] ?? [:]
+      let windowId = args["windowId"] as! Int64
+      MultiWindowManager.shared.setAlwaysOnTop(windowId: windowId, args: args)
       result(true)
       break
     default:

@@ -249,6 +249,14 @@ class MultiWindowManager {
     }
     window.setMinimumSize(args: args)
   }
+
+  func setAlwaysOnTop(windowId: Int64, args: [String: Any]) {
+    guard let window = windows[windowId] else {
+      debugPrint("window \(windowId) not exists.")
+      return
+    }
+    window.setAlwaysOnTop(args: args)
+  }
 }
 
 protocol WindowManagerDelegate: AnyObject {

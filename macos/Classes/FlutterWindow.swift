@@ -169,6 +169,18 @@ class BaseFlutterWindow: NSObject {
     )
     window.minSize = minSize
   }
+
+  func setAlwaysOnTop(args: [String: Any]) {
+    let isAlwaysOnTop: Bool = args["isAlwaysOnTop"] as! Bool
+    window.level = isAlwaysOnTop ? .floating : .normal
+    if (window is NSPanel) {
+      if (isAlwaysOnTop) {
+        window.styleMask.insert(.nonactivatingPanel)
+      } else {
+        window.styleMask.remove(.nonactivatingPanel)
+      }
+    }
+  }
 }
 
 /// Add extra hooks for window

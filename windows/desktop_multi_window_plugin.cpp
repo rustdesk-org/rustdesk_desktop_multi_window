@@ -206,6 +206,11 @@ void DesktopMultiWindowPlugin::HandleMethodCall(
     // MultiWindowManager::Instance()->SetMinimumSize(window_id, arguments);
     result->Success();
     return;
+  } else if (method_call.method_name() == "setAlwaysOnTop") {
+    auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    auto window_id = arguments->at(flutter::EncodableValue("windowId")).LongValue();
+    MultiWindowManager::Instance()->SetAlwaysOnTop(window_id, arguments);
+    result->Success();
   }
   result->NotImplemented();
 }

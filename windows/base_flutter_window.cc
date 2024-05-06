@@ -335,6 +335,13 @@ void BaseFlutterWindow::SetTitleBarStyle(const flutter::EncodableMap& args) {
     // std::cout << "set title bar styled" << std::endl;
 }
 
+void BaseFlutterWindow::SetAlwaysOnTop(const flutter::EncodableMap *args) {
+  bool isAlwaysOnTop = std::get<bool>(args->at(flutter::EncodableValue("isAlwaysOnTop")));
+
+  SetWindowPos(GetWindowHandle(), isAlwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST,
+               0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+}
+
 void BaseFlutterWindow::SetAsFrameless() {
     is_frameless_ = true;
     HWND hWnd = GetWindowHandle();
