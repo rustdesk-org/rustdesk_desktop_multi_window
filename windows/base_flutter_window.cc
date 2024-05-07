@@ -342,6 +342,15 @@ void BaseFlutterWindow::SetAlwaysOnTop(const flutter::EncodableMap *args) {
                0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 }
 
+void BaseFlutterWindow::SetOpacity(const flutter::EncodableMap *args) {
+  double opacity = std::get<double>(args->at(flutter::EncodableValue("opacity")));
+  HWND hWnd = GetWindowHandle();
+  long gwlExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+  SetWindowLong(hWnd, GWL_EXSTYLE, gwlExStyle | WS_EX_LAYERED);
+  SetLayeredWindowAttributes(hWnd, 0, static_cast<int8_t>(255 * opacity),
+                             0x02);
+}
+
 void BaseFlutterWindow::SetAsFrameless() {
     is_frameless_ = true;
     HWND hWnd = GetWindowHandle();

@@ -225,4 +225,13 @@ class WindowControllerMainImpl extends WindowController {
     };
     await _channel.invokeMethod('setAlwaysOnTop', arguments);
   }
+
+  @override
+  Future<void> setOpacity(double opacity) async {
+    final Map<String, dynamic> arguments = {
+      'windowId': _id,
+      'opacity': opacity,
+    };
+    await _channel.invokeMethod('setOpacity', arguments);
+  }
 }

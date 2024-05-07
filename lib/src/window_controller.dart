@@ -109,4 +109,7 @@ abstract class WindowController {
 
   /// Sets whether the window should show always on top of other windows.
   Future<void> setAlwaysOnTop(bool isAlwaysOnTop);
+
+  /// Sets the opacity of the window.
+  Future<void> setOpacity(double opacity);
 }
