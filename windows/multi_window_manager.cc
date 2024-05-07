@@ -299,3 +299,10 @@ void MultiWindowManager::SetAlwaysOnTop(int64_t id, const flutter::EncodableMap 
     return window->second->SetAlwaysOnTop(args);
   }
 }
+
+void MultiWindowManager::SetOpacity(int64_t id, const flutter::EncodableMap *args) {
+  auto window = windows_.find(id);
+  if (window != windows_.end()) {
+    return window->second->SetOpacity(args);
+  }
+}

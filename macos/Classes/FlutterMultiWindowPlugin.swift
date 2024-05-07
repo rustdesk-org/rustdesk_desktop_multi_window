@@ -173,6 +173,12 @@ public class FlutterMultiWindowPlugin: NSObject, FlutterPlugin {
       MultiWindowManager.shared.setAlwaysOnTop(windowId: windowId, args: args)
       result(true)
       break
+    case "setOpacity":
+      let args = call.arguments as? [String: Any?] ?? [:]
+      let windowId = args["windowId"] as! Int64
+      MultiWindowManager.shared.setOpacity(windowId: windowId, args: args)
+      result(true)
+      break
     default:
       result(FlutterMethodNotImplemented)
     }

@@ -41,6 +41,8 @@ class BaseFlutterWindow {
 
   void SetAlwaysOnTop(const flutter::EncodableMap *args);
 
+  void SetOpacity(const flutter::EncodableMap *args);
+
   void SetAsFrameless();
 
   void Restore();

@@ -181,6 +181,11 @@ class BaseFlutterWindow: NSObject {
       }
     }
   }
+
+  func setOpacity(_ args: [String: Any]) {
+    let opacity: CGFloat = CGFloat(truncating: args["opacity"] as! NSNumber)
+    window.alphaValue = opacity
+  }
 }
 
 /// Add extra hooks for window
