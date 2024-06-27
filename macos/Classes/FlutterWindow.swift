@@ -153,6 +153,39 @@ class BaseFlutterWindow: NSObject {
     func setPreventClose(setPreventClose: Bool) {
         _isPreventClose = setPreventClose
     }
+  
+  func resizable(resizable: Bool) {
+    if (resizable) {
+      window.styleMask.insert(.resizable)
+    } else {
+      window.styleMask.remove(.resizable)
+    }
+  }
+
+  func setMinimumSize(args: [String: Any]) {
+    let minSize: NSSize = NSSize(
+        width: CGFloat((args["width"] as! NSNumber).floatValue),
+        height: CGFloat((args["height"] as! NSNumber).floatValue)
+    )
+    window.minSize = minSize
+  }
+
+  func setAlwaysOnTop(args: [String: Any]) {
+    let isAlwaysOnTop: Bool = args["isAlwaysOnTop"] as! Bool
+    window.level = isAlwaysOnTop ? .floating : .normal
+    if (window is NSPanel) {
+      if (isAlwaysOnTop) {
+        window.styleMask.insert(.nonactivatingPanel)
+      } else {
+        window.styleMask.remove(.nonactivatingPanel)
+      }
+    }
+  }
+
+  func setOpacity(_ args: [String: Any]) {
+    let opacity: CGFloat = CGFloat(truncating: args["opacity"] as! NSNumber)
+    window.alphaValue = opacity
+  }
 }
 
 /// Add extra hooks for window
