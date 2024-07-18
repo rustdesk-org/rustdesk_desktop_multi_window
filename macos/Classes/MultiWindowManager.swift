@@ -23,28 +23,17 @@ class MultiWindowManager {
     window.delegate = self
     window.windowChannel.methodHandler = self.handleMethodCall
     windows[windowId] = window
-    hideShow(windowId: -1)
     return windowId
   }
 
   // https://github.com/flutter/flutter/issues/133533
   // https://github.com/MixinNetwork/flutter-plugins/issues/289#issuecomment-1817665239
-  func hideShow(windowId: Int64) {
-    for (id, window) in windows {
-      if (windowId == -1 || id != windowId) {
-        if !window.isHidden() {
-          window.hide()
-          window.show()
-        }
+  func hideShow() {
+    for (_, wnd) in windows {
+      if !wnd.isHidden() {
+        wnd.hide()
+        wnd.show()
       }
-    }
-    if (windowId != -1) {
-      guard let window = windows[windowId] else {
-        debugPrint("window \(windowId) not exists.")
-        return
-      }
-      window.hide()
-      window.show()
     }
   }
 
@@ -67,7 +56,7 @@ class MultiWindowManager {
       debugPrint("window \(windowId) not exists.")
       return
     }
-    hideShow(windowId: -1)
+    hideShow()
     window.show()
   }
 
