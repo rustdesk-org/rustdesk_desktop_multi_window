@@ -165,6 +165,10 @@ class SubWindowContent extends StatefulWidget {
 class _SubWindowContentState extends State<SubWindowContent>
     with MultiWindowListener {
   bool isPreventClose = false;
+  bool isResizable = true;
+  bool isAlwaysOnTop = false;
+  int minSize = 400;
+  double opacity = 1.0;
 
   @override
   void initState() {
@@ -288,6 +292,69 @@ class _SubWindowContentState extends State<SubWindowContent>
                   widget.windowController.close();
                 },
                 child: const Text('close window'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  widget.windowController.setFullscreen(false);
+                },
+                child: const Text('cancel fullscreen'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  if (minSize == 400) {
+                    widget.windowController
+                        .setMinimumSize(const Size(800, 800));
+                  } else {
+                    widget.windowController
+                        .setMinimumSize(const Size(400, 400));
+                  }
+                  setState(() {
+                    minSize = minSize == 400 ? 600 : 400;
+                  });
+                },
+                child: Text('min size ${minSize == 400 ? '800' : '400'}'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  widget.windowController.setAlwaysOnTop(!isAlwaysOnTop);
+                  setState(() {
+                    isAlwaysOnTop = !isAlwaysOnTop;
+                  });
+                },
+                child: Text('always on top ${isAlwaysOnTop ? 'off' : 'on'}'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  widget.windowController.resizable(!isResizable);
+                  setState(() {
+                    isResizable = !isResizable;
+                  });
+                },
+                child: Text(isResizable ? 'setFixed' : 'setResizable'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  widget.windowController.setOpacity(opacity);
+                  setState(() {
+                    opacity += 0.1;
+                  });
+                },
+                child: const Text('Opacity increase'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  widget.windowController.setOpacity(opacity);
+                  setState(() {
+                    opacity -= 0.1;
+                  });
+                },
+                child: const Text('Opacity decrease'),
+              ),
+              TextButton(
+                onPressed: () async {
+                  widget.windowController.minimize();
+                },
+                child: const Text('minimize'),
               ),
               Expanded(child: EventWidget(controller: widget.windowController)),
             ],

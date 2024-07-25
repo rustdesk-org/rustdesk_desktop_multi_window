@@ -160,6 +160,20 @@ auto window = windows_.find(id);
   }
 }
 
+void MultiWindowManager::Resizable(int64_t id, bool resizable) {
+  auto window = windows_.find(id);
+  if (window != windows_.end()) {
+    window->second->Resizable(resizable);
+  }
+}
+
+void MultiWindowManager::SetMinimumSize(int64_t id, const flutter::EncodableMap *args) {
+  auto window = windows_.find(id);
+  if (window != windows_.end()) {
+    window->second->SetMinimumSize(args);
+  }
+}
+
 std::vector<int64_t> MultiWindowManager::GetAllSubWindowIds() {
   std::vector<int64_t> ids;
   for (auto &window : windows_) {
@@ -277,4 +291,18 @@ bool MultiWindowManager::IsFullscreen(int64_t id) {
     return window->second->IsFullscreen();
   }
   return false;
+}
+
+void MultiWindowManager::SetAlwaysOnTop(int64_t id, const flutter::EncodableMap *args) {
+  auto window = windows_.find(id);
+  if (window != windows_.end()) {
+    return window->second->SetAlwaysOnTop(args);
+  }
+}
+
+void MultiWindowManager::SetOpacity(int64_t id, const flutter::EncodableMap *args) {
+  auto window = windows_.find(id);
+  if (window != windows_.end()) {
+    return window->second->SetOpacity(args);
+  }
 }

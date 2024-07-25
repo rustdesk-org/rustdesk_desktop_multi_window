@@ -166,6 +166,35 @@ void BaseFlutterWindow::SetFullscreen(bool fullscreen) {
     }
 }
 
+void BaseFlutterWindow::Resizable(bool resizable) {
+    auto window = GetWindowHandle();
+    if (!window) {
+        return;
+    }
+    DWORD gwlStyle = GetWindowLong(window, GWL_STYLE);
+    if (resizable) {
+      gwlStyle |= WS_THICKFRAME;
+    } else {
+      gwlStyle &= ~WS_THICKFRAME;
+    }
+    ::SetWindowLong(window, GWL_STYLE, gwlStyle);
+}
+
+void BaseFlutterWindow::SetMinimumSize(const flutter::EncodableMap *args) {
+  double devicePixelRatio =
+      std::get<double>(args->at(flutter::EncodableValue("devicePixelRatio")));
+  double width = std::get<double>(args->at(flutter::EncodableValue("width")));
+  double height = std::get<double>(args->at(flutter::EncodableValue("height")));
+
+  if (width >= 0 && height >= 0) {
+    pixel_ratio_ = devicePixelRatio;
+    POINT point = {};
+    point.x = static_cast<LONG>(width);
+    point.y = static_cast<LONG>(height);
+    minimum_size_ = point;
+  }
+}
+
 void BaseFlutterWindow::StartDragging() {
     auto window = GetWindowHandle();
     if (!window) {
@@ -303,6 +332,22 @@ void BaseFlutterWindow::SetTitleBarStyle(const flutter::EncodableMap& args) {
         SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_NOSIZE |
         SWP_FRAMECHANGED);
     // std::cout << "set title bar styled" << std::endl;
+}
+
+void BaseFlutterWindow::SetAlwaysOnTop(const flutter::EncodableMap *args) {
+  bool isAlwaysOnTop = std::get<bool>(args->at(flutter::EncodableValue("isAlwaysOnTop")));
+
+  SetWindowPos(GetWindowHandle(), isAlwaysOnTop ? HWND_TOPMOST : HWND_NOTOPMOST,
+               0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+}
+
+void BaseFlutterWindow::SetOpacity(const flutter::EncodableMap *args) {
+  double opacity = std::get<double>(args->at(flutter::EncodableValue("opacity")));
+  HWND hWnd = GetWindowHandle();
+  long gwlExStyle = GetWindowLong(hWnd, GWL_EXSTYLE);
+  SetWindowLong(hWnd, GWL_EXSTYLE, gwlExStyle | WS_EX_LAYERED);
+  SetLayeredWindowAttributes(hWnd, 0, static_cast<int8_t>(255 * opacity),
+                             0x02);
 }
 
 void BaseFlutterWindow::SetAsFrameless() {

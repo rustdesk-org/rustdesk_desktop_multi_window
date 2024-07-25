@@ -233,6 +233,38 @@ class MultiWindowManager {
         }
         return window.setPreventClose(setPreventClose: setPreventClose)
     }
+  
+  func resizable(windowId: Int64, resizable: Bool) {
+    guard let window = windows[windowId] else {
+      debugPrint("window \(windowId) not exists.")
+      return
+    }
+    window.resizable(resizable: resizable)
+  }
+
+  func setMinimumSize(windowId: Int64, args: [String: Any]) {
+    guard let window = windows[windowId] else {
+      debugPrint("window \(windowId) not exists.")
+      return
+    }
+    window.setMinimumSize(args: args)
+  }
+
+  func setAlwaysOnTop(windowId: Int64, args: [String: Any]) {
+    guard let window = windows[windowId] else {
+      debugPrint("window \(windowId) not exists.")
+      return
+    }
+    window.setAlwaysOnTop(args: args)
+  }
+
+  func setOpacity(windowId: Int64, args: [String: Any]) {
+    guard let window = windows[windowId] else {
+      debugPrint("window \(windowId) not exists.")
+      return
+    }
+    window.setOpacity(args)
+  }
 }
 
 protocol WindowManagerDelegate: AnyObject {

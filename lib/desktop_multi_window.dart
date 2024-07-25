@@ -8,9 +8,9 @@ import 'src/window_controller.dart';
 import 'src/window_controller_impl.dart';
 import 'src/window_listener.dart';
 
-export 'src/window_listener.dart';
-export 'src/window_controller.dart';
 export 'src/widgets/sub_drag_to_resize_area.dart';
+export 'src/window_controller.dart';
+export 'src/window_listener.dart';
 
 class DesktopMultiWindow {
   /// Create a new Window.
@@ -86,7 +86,7 @@ class DesktopMultiWindow {
       final result = await miltiWindowChannel
           .invokeMethod<List<dynamic>>('getAllSubWindowIds');
       final ids = result
-              ?.map<int>((id) => id.toInt())
+              ?.map<int>((id) => (id as int).toInt())
               .where((id) => id != 0)
               ?.toList() ??
           [];
