@@ -124,6 +124,13 @@ void DesktopMultiWindowPlugin::HandleMethodCall(
     MultiWindowManager::Instance()->SetFullscreen(window_id, fullscreen);
     result->Success();
     return;
+  } else if (method_call.method_name() == "resizable") {
+    auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    auto window_id = arguments->at(flutter::EncodableValue("windowId")).LongValue();
+    auto resizable = std::get<bool>(arguments->at(flutter::EncodableValue("resizable")));
+    MultiWindowManager::Instance()->Resizable(window_id, resizable);
+    result->Success();
+    return;
   } else if (method_call.method_name() == "isFullscreen") {
     auto *arguments =
         std::get_if<flutter::EncodableMap>(method_call.arguments());
@@ -193,6 +200,22 @@ void DesktopMultiWindowPlugin::HandleMethodCall(
     auto res = MultiWindowManager::Instance()->IsPreventClose(window_id);
     result->Success(flutter::EncodableValue(res));
     return;
+  } else if (method_call.method_name() == "setMinimumSize") {
+    auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    auto window_id = arguments->at(flutter::EncodableValue("windowId")).LongValue();
+    MultiWindowManager::Instance()->SetMinimumSize(window_id, arguments);
+    result->Success();
+    return;
+  } else if (method_call.method_name() == "setAlwaysOnTop") {
+    auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    auto window_id = arguments->at(flutter::EncodableValue("windowId")).LongValue();
+    MultiWindowManager::Instance()->SetAlwaysOnTop(window_id, arguments);
+    result->Success();
+  } else if (method_call.method_name() == "setOpacity") {
+    auto *arguments = std::get_if<flutter::EncodableMap>(method_call.arguments());
+    auto window_id = arguments->at(flutter::EncodableValue("windowId")).LongValue();
+    MultiWindowManager::Instance()->SetOpacity(window_id, arguments);
+    result->Success();
   }
   result->NotImplemented();
 }

@@ -59,15 +59,15 @@ class WindowControllerMainImpl extends WindowController {
     final Map<String, dynamic> arguments = {
       'windowId': _id,
     };
-    final Map<dynamic, dynamic> resultData = await _channel.invokeMethod(
+    final Map<dynamic, dynamic> resultData = (await _channel.invokeMethod(
       'getFrame',
       arguments,
-    );
+    ))!;
     return Rect.fromLTWH(
-      resultData['x'],
-      resultData['y'],
-      resultData['width'],
-      resultData['height'],
+      resultData['x']!,
+      resultData['y']!,
+      resultData['width']!,
+      resultData['height']!,
     );
   }
 
@@ -190,5 +190,48 @@ class WindowControllerMainImpl extends WindowController {
     final Map<String, dynamic> arguments = {'windowId': _id};
     return await _channel.invokeMethod<bool>('isFullScreen', arguments) ??
         false;
+  }
+  
+  @override
+  Future<void> resizable(bool resizable) {
+    return _channel.invokeMethod('resizable', <String, dynamic>{
+        'windowId': _id,
+        'resizable': resizable,
+    });
+  }
+
+  double getDevicePixelRatio() {
+    // Subsequent version, remove this deprecated member.
+    // ignore: deprecated_member_use
+    return window.devicePixelRatio;
+  }
+
+  @override
+  Future<void> setMinimumSize(Size size) async {
+    final Map<String, dynamic> arguments = {
+      'windowId': _id,
+      'devicePixelRatio': getDevicePixelRatio(),
+      'width': size.width,
+      'height': size.height,
+    };
+    await _channel.invokeMethod('setMinimumSize', arguments);
+  }
+
+  @override
+  Future<void> setAlwaysOnTop(bool isAlwaysOnTop) async {
+    final Map<String, dynamic> arguments = {
+      'windowId': _id,
+      'isAlwaysOnTop': isAlwaysOnTop,
+    };
+    await _channel.invokeMethod('setAlwaysOnTop', arguments);
+  }
+
+  @override
+  Future<void> setOpacity(double opacity) async {
+    final Map<String, dynamic> arguments = {
+      'windowId': _id,
+      'opacity': opacity,
+    };
+    await _channel.invokeMethod('setOpacity', arguments);
   }
 }

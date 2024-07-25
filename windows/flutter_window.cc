@@ -280,7 +280,18 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
       }
       break;
     }
+    case WM_GETMINMAXINFO: {
+      MINMAXINFO* info = reinterpret_cast<MINMAXINFO*>(lparam);
+      // For the special "unconstrained" values, leave the defaults.
+      if (this->minimum_size_.x != 0)
+        info->ptMinTrackSize.x = static_cast<LONG> (this->minimum_size_.x * this->pixel_ratio_);
+      if (this->minimum_size_.y != 0)
+        info->ptMinTrackSize.y = static_cast<LONG> (this->minimum_size_.y * this->pixel_ratio_);
+      break;
+    }
     case WM_DPICHANGED: {
+      this->pixel_ratio_ = (float) LOWORD(wparam) / USER_DEFAULT_SCREEN_DPI;
+
       auto newRectSize = reinterpret_cast<RECT *>(lparam);
       LONG newWidth = newRectSize->right - newRectSize->left;
       LONG newHeight = newRectSize->bottom - newRectSize->top;

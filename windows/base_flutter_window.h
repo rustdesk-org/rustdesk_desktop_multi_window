@@ -31,9 +31,17 @@ class BaseFlutterWindow {
 
   void SetFullscreen(bool fullscreen);
 
+  void Resizable(bool resizable);
+
+  void SetMinimumSize(const flutter::EncodableMap *args);
+
   void Maximize(const flutter::EncodableMap& args);
 
   void SetTitleBarStyle(const flutter::EncodableMap& args);
+
+  void SetAlwaysOnTop(const flutter::EncodableMap *args);
+
+  void SetOpacity(const flutter::EncodableMap *args);
 
   void SetAsFrameless();
 
@@ -69,6 +77,8 @@ class BaseFlutterWindow {
   void ForceChildRefresh();
 
   std::string title_bar_style_ = "normal";
+  POINT minimum_size_ = {0, 0};
+  double pixel_ratio_ = 1;
 
   virtual HWND GetWindowHandle() = 0;
 
