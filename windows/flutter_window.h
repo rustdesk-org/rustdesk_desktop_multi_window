@@ -63,6 +63,18 @@ class FlutterWindow : public BaseFlutterWindow {
 
   bool destroyed_ = false;
 
+  // Whether the engine has generated its first frame. Note that a generated
+  // frame is not necessarily presented: the resize synchronization may reject
+  // it (see kForceRedrawTimerId in the .cc file).
+  bool first_frame_rendered_ = false;
+
+  // Whether a resize arrived before the first frame was generated, i.e. the
+  // window may be stuck white with a rejected frame.
+  bool resized_before_first_frame_ = false;
+
+  // Number of force-redraw attempts made so far.
+  UINT force_redraw_tries_ = 0;
+
   static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
   static FlutterWindow *GetThisFromHandle(HWND window) noexcept;
