@@ -330,10 +330,12 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
           // Not std::cerr: the host process only has a console when started
           // from one or under a debugger, and this fires on end-user machines.
           // OutputDebugString is readable with DebugView there.
-          const std::string message =
+          // log_message, not message: that would shadow the MessageHandler
+          // parameter, which MSVC flags as C4457 and /WX makes fatal.
+          const std::string log_message =
               "rustdesk: Flutter window " + std::to_string(id_) +
               " did not render its first frame, giving up.\n";
-          OutputDebugStringA(message.c_str());
+          OutputDebugStringA(log_message.c_str());
           KillTimer(hwnd, kForceRedrawTimerId);
         } else if (force_redraw_tries_ <= kForceRedrawCheapTries) {
           flutter_controller_->ForceRedraw();
