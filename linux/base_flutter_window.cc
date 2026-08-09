@@ -74,15 +74,46 @@ void BaseFlutterWindow::Focus() {
   gtk_window_present(window);
 }
 
+void BaseFlutterWindow::ActivateDesktopFullScreen(bool on) {
+  auto window = GetWindow();
+
+  if (window) {
+    auto gdk_window = gtk_widget_get_window(GTK_WIDGET(window));
+
+    if (gdk_window) {
+      gdk_window_set_fullscreen_mode(GDK_WINDOW(gdk_window),
+        on ?
+	  GDK_FULLSCREEN_ON_ALL_MONITORS :
+	  GDK_FULLSCREEN_ON_CURRENT_MONITOR);
+    }
+  }
+}
+
 void BaseFlutterWindow::SetFullscreen(bool fullscreen) {
   auto window = GetWindow();
   if (!window) {
     return;
   }
+  ActivateDesktopFullScreen(false);
   if (fullscreen)
     gtk_window_fullscreen(window);
   else
     gtk_window_unfullscreen(window);
+}
+
+void BaseFlutterWindow::SetFullDesktopScreen(bool fullscreen) {
+  auto window = GetWindow();
+  if (!window) {
+    return;
+  }
+  if (fullscreen) {
+    ActivateDesktopFullScreen(true);
+    gtk_window_fullscreen(window);
+  }
+  else {
+    ActivateDesktopFullScreen(false);
+    gtk_window_unfullscreen(window);
+  }
 }
 
 void BaseFlutterWindow::SetBounds(double_t x, double_t y, double_t width,

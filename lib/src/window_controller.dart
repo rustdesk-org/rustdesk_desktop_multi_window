@@ -67,6 +67,9 @@ abstract class WindowController {
   /// Make the window full screen or not
   Future<void> setFullscreen(bool fullscreen);
 
+  /// Make the window fill screen or not, but if it is full screen, use the entire desktop
+  Future<void> setFullDesktopScreen(bool fullscreen);
+
   /// Set the window frame rect.
   Future<void> setFrame(Rect frame);
 
