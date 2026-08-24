@@ -9,6 +9,7 @@
 #include "tchar.h"
 
 #include "resource.h"
+#include "show_recovery.h"
 
 #include <iostream>
 #include <string>
@@ -295,9 +296,11 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
         // The window is created hidden and shown by the Dart side later, which
         // may be long after the creation-time force-redraw timer has given up,
         // and FancyZones moves windows exactly when they are shown. Re-arm the
-        // protection if the first frame still hasn't been rendered by now (see
+        // protection even if a frame was generated while the window was hidden,
+        // because that frame may not have been presented (see
         // kForceRedrawTimerId).
-        if (!first_frame_rendered_ && flutter_controller_) {
+        if (ShouldArmShowRecovery(flutter_controller_ != nullptr,
+                                  first_frame_rendered_)) {
           force_redraw_tries_ = 0;
           SetTimer(hwnd, kForceRedrawTimerId, kForceRedrawIntervalMs, nullptr);
         }
