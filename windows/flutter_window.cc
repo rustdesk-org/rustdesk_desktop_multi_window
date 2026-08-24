@@ -295,9 +295,9 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
         // The window is created hidden and shown by the Dart side later, which
         // may be long after the creation-time force-redraw timer has given up,
         // and FancyZones moves windows exactly when they are shown. Re-arm the
-        // protection if the first frame still hasn't been rendered by now (see
-        // kForceRedrawTimerId).
-        if (!first_frame_rendered_ && flutter_controller_) {
+        // protection on every show because a frame generated while hidden may
+        // not have been presented (see kForceRedrawTimerId).
+        if (flutter_controller_) {
           force_redraw_tries_ = 0;
           SetTimer(hwnd, kForceRedrawTimerId, kForceRedrawIntervalMs, nullptr);
         }
