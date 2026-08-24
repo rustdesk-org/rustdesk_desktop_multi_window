@@ -19,6 +19,8 @@ class BaseFlutterWindow {
 
   void Hide();
 
+  bool IsHidden();
+
   void Close();
 
   void SetTitle(const std::string &title);
@@ -56,6 +58,8 @@ class BaseFlutterWindow {
 
   void ShowTitlebar(bool show);
 
+  void SetInitBackgroundColor(const flutter::EncodableMap *args);
+
   void StartResizing(const flutter::EncodableMap *param);
 
   bool IsPreventClose();
@@ -70,6 +74,14 @@ class BaseFlutterWindow {
 
   virtual HWND GetWindowHandle() = 0;
 
+  inline bool IsEraseTransparent() {
+    return erase_transparent_;
+  }
+
+  inline COLORREF GetEraseBackgroundColor() {
+    return erase_background_color_;
+  }
+
 private:
 	bool g_is_window_fullscreen = false;
 	std::string g_title_bar_style_before_fullscreen;
@@ -81,6 +93,10 @@ private:
 	bool is_frameless_ = false;
   bool is_prevent_close_ = false;
 
+  COLORREF erase_background_color_ = RGB(255, 255, 255);
+  bool erase_transparent_ = false;
+
+  bool is_first_move_ = true;
 };
 
 #endif //MULTI_WINDOW_WINDOWS_BASE_FLUTTER_WINDOW_H_

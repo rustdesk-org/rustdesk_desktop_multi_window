@@ -27,6 +27,8 @@ class MultiWindowManager : public std::enable_shared_from_this<MultiWindowManage
 
   void Hide(int64_t id);
 
+  bool IsHidden(int64_t id);
+
   void Focus(int64_t id);
 
   void StartDragging(int64_t id);
@@ -37,9 +39,13 @@ class MultiWindowManager : public std::enable_shared_from_this<MultiWindowManage
 
   bool IsMaximized(int64_t id);
 
+  bool IsMinimized(int64_t id);
+
   void Unmaximize(int64_t id);
 
   void ShowTitlebar(int64_t id, bool show);
+
+  void SetInitBackgroundColor(int64_t id, const flutter::EncodableMap *args);
 
   bool IsFullscreen(int64_t id);
 
