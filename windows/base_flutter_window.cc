@@ -482,6 +482,7 @@ bool BaseFlutterWindow::IsFrameless()
 
 
 void BaseFlutterWindow::ForceChildRefresh() {
+  constexpr int kNonRenderingWidth = 0;
   auto handle = GetWindowHandle();
   if (!handle) {
     return;
@@ -489,8 +490,11 @@ void BaseFlutterWindow::ForceChildRefresh() {
   handle = GetWindow(handle, GW_CHILD);
   RECT rect;
   GetWindowRect(handle, &rect);
+  // A nonzero intermediate width can time out before Flutter resizes its
+  // surface. Restoring its old width then leaves that intermediate resize
+  // pending. Zero width sends metrics without creating a new resize target.
   SetWindowPos(
-      handle, nullptr, rect.left, rect.top, rect.right - rect.left + 1,
+      handle, nullptr, rect.left, rect.top, kNonRenderingWidth,
       rect.bottom - rect.top,
       SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE | SWP_FRAMECHANGED);
   SetWindowPos(
