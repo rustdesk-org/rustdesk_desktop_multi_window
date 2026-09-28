@@ -52,9 +52,9 @@ This probe does not validate RustDesk's network reconnection or monitor
 subscriptions; those require a separate full-client test. It also does not emulate
 different GPU drivers or mixed monitor DPI settings.
 
-On the validation machine, the Release stress run stopped at its first immediate
-fullscreen/restore round: the window had matching sizes and `kDone`, but could not
-be brought above other windows for the pixel check. The same failure reproduced
-with the unmodified `8b774a6` plugin. The individual fullscreen scenario, which
-allows time between transitions, passed. This stress failure is retained rather
-than treated as a passing result.
+The pixel verifier clears its temporary topmost state before raising each window.
+Fullscreen restores a saved extended window style, which can interfere with the
+verifier's earlier topmost transitions. Without the reset, the Release stress run
+could sample an obscuring application instead of the probe, with both the fixed
+and upstream plugins. The reset changes only the capture setup, not window sizes,
+Flutter frames, or the native-state and pixel assertions.

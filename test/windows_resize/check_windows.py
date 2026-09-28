@@ -72,6 +72,10 @@ def inspect(pid, root, config, reportdir, tag, expected=2, pixels=True):
             row.update(parent=[pr.right, pr.bottom], client=[cr.right, cr.bottom])
             if pixels:
                 try:
+                    # Fullscreen restores a saved extended style. Reset our earlier
+                    # topmost transition before raising the window for capture.
+                    if not u.SetWindowPos(row['hwnd'], w.HWND(-2), 0, 0, 0, 0, 19):
+                        raise RuntimeError('Cannot reset probe z-order for pixel verification')
                     if not u.SetWindowPos(row['hwnd'], w.HWND(-1), 0, 0, 0, 0, 19):
                         raise RuntimeError('Cannot raise probe for pixel verification')
                     time.sleep(0.18)
