@@ -5,7 +5,6 @@
 #include "flutter_window.h"
 
 #include "flutter_windows.h"
-#include <flutter/method_result_functions.h>
 
 #include "tchar.h"
 
@@ -486,37 +485,26 @@ void FlutterWindow::BeginChildRefresh() {
     return;
   }
 
-  // A frame callback alone may still belong to an old-size frame. This reply
-  // passes through Dart's UI thread after the metrics update, so all old-size
-  // frames are queued on the raster thread before we register the callback.
-  flutter::EncodableValue args;
-  window_channel_->InvokeMethod(
-      id_, "__window_resize_barrier", &args,
-      std::make_unique<flutter::MethodResultFunctions<>>(
-          [this, generation](const flutter::EncodableValue*) {
-            if (destroyed_ || generation != child_refresh_generation_ ||
-                !flutter_controller_) {
-              return;
-            }
-            child_refresh_ui_ready_ = true;
-            force_redraw_tries_ = 0;
-            SetTimer(window_handle_, kForceRedrawTimerId,
-                     kForceRedrawIntervalMs, nullptr);
-            AwaitChildRefreshFrame();
-          },
-          [this, generation](const std::string&, const std::string&,
-                             const flutter::EncodableValue*) {
-            if (generation == child_refresh_generation_) {
-              child_refresh_pending_ = false;
-              OutputDebugStringA("rustdesk: Flutter resize barrier failed.\n");
-            }
-          },
-          [this, generation]() {
-            if (generation == child_refresh_generation_) {
-              child_refresh_pending_ = false;
-              OutputDebugStringA("rustdesk: Flutter resize barrier missing.\n");
-            }
-          }));
+  // ServicesBinding acknowledges unknown system messages without acting on
+  // them. The reply passes through Dart's UI thread after the metrics update,
+  // so old-size frames are queued before we register the frame callback. This
+  // must not depend on the application installing a window method handler.
+  static constexpr char kResizeBarrierMessage[] =
+      R"({"type":"desktop_multi_window.resizeBarrier"})";
+  flutter_controller_->engine()->messenger()->Send(
+      "flutter/system", reinterpret_cast<const uint8_t*>(kResizeBarrierMessage),
+      sizeof(kResizeBarrierMessage) - 1,
+      [this, generation](const uint8_t*, size_t) {
+        if (destroyed_ || generation != child_refresh_generation_ ||
+            !flutter_controller_) {
+          return;
+        }
+        child_refresh_ui_ready_ = true;
+        force_redraw_tries_ = 0;
+        SetTimer(window_handle_, kForceRedrawTimerId,
+                 kForceRedrawIntervalMs, nullptr);
+        AwaitChildRefreshFrame();
+      });
 }
 
 void FlutterWindow::AwaitChildRefreshFrame() {
