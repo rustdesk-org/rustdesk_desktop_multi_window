@@ -36,9 +36,12 @@ failure/incomplete stress run, not as a successful 100-window Release run.
 
 Full-client checks used a local RustDesk development build containing existing
 reconnect debugging changes. After loading the final plugin, the second remote
-window opened and received an image; five close/reopen cycles and switching its
-selected monitor from 1 to 0 and back to 1 passed. Both windows had matching native
-sizes and `kDone`, and the reopened windows had no waiting dialogs.
+window opened and received an image; an initial series of five close/reopen cycles
+and switching its selected monitor from 1 to 0 and back to 1 passed. A repeated
+series after restoring the direct-connection preference passed four cycles, but
+the fifth remained at `Waiting for image`. Both native views were still `kDone`
+with matching dimensions. Therefore the full-client reopen flow is not certified
+either; the Flutter window recovery and remote-frame subscription are distinct.
 
 Forcing reconnect while a session was already connected received new textures in
 several trials but left a `Connecting...` overlay. Therefore full-client reconnect
