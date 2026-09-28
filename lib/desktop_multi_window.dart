@@ -67,6 +67,9 @@ class DesktopMultiWindow {
       return;
     }
     windowEventChannel.setMethodCallHandler((call) async {
+      if (call.method == '__window_resize_barrier') {
+        return null;
+      }
       if (call.method != 'onEvent') {
         final fromWindowId = call.arguments['fromWindowId'] as int;
         final arguments = call.arguments['arguments'];

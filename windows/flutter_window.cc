@@ -5,6 +5,7 @@
 #include "flutter_window.h"
 
 #include "flutter_windows.h"
+#include <flutter/method_result_functions.h>
 
 #include "tchar.h"
 
@@ -66,7 +67,7 @@ namespace {
 // is rejected, nothing schedules a matching one, and the window stays white
 // until a real resize re-enters OnWindowSizeChanged, which resets the resize
 // target and resends the window metrics. That is why minimize/restore heals
-// it; ForceChildRefresh() does the same programmatically.
+// it; BeginChildRefresh() does the same programmatically.
 // https://github.com/rustdesk/rustdesk/issues/6756
 // https://github.com/flutter/flutter/issues/159630
 //
@@ -78,12 +79,8 @@ namespace {
 //   window created hidden and shown later, with nothing scheduling a frame.
 // - The SetNextFrameCallback used to detect the first frame fires when a frame
 //   is GENERATED (raster thread), even if the resize gate then rejects its
-//   present. So it must not be the only stop condition: one final
-//   ForceChildRefresh() is issued to guarantee a present at the current size.
-//   Note this premise is not load-bearing, and the redundancy is deliberate:
-//   if the callback in fact only fired on a successful present, then
-//   first_frame_rendered_ would stay false and the timer below would keep
-//   nudging until it healed.
+//   present. Recovery therefore holds the enlarged child size until Dart has
+//   processed the new metrics and a subsequent frame has been generated.
 // This also relies on HandleTopLevelWindowProc not consuming WM_TIMER (no
 // plugin registers a delegate for it today).
 constexpr UINT_PTR kForceRedrawTimerId = 0xFB15;
@@ -92,8 +89,7 @@ constexpr UINT kForceRedrawIntervalMs = 200;
 // timer alive forever. 25 * 200ms covers slow starts comfortably.
 constexpr UINT kForceRedrawMaxTries = 25;
 // The first ticks use the cheap ForceRedraw(); later ticks use
-// ForceChildRefresh(), which may block the platform thread for up to 2x100ms
-// per call (each nudge re-enters the 100ms resize wait).
+// BeginChildRefresh(), whose initial resize can wait up to 100ms.
 constexpr UINT kForceRedrawCheapTries = 2;
 
 WindowCreatedCallback _g_window_created_callback = nullptr;
@@ -201,7 +197,10 @@ FlutterWindow::FlutterWindow(
 
   // See the comment on kForceRedrawTimerId above.
   flutter_controller_->engine()->SetNextFrameCallback(
-      [this]() { first_frame_rendered_ = true; });
+      [this]() {
+        first_frame_rendered_ = true;
+        AwaitChildRefreshFrame();
+      });
   SetTimer(window_handle, kForceRedrawTimerId, kForceRedrawIntervalMs, nullptr);
 
   // hide the window when created.
@@ -315,17 +314,6 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
       if (wparam == kForceRedrawTimerId) {
         if (!flutter_controller_) {
           KillTimer(hwnd, kForceRedrawTimerId);
-        } else if (first_frame_rendered_) {
-          // A frame was generated, which does not mean it was presented: if a
-          // resize was pending, the gate rejected it (see the comment on
-          // kForceRedrawTimerId). One child refresh guarantees a present at the
-          // current size. Unconditional because gating it bought nothing: the
-          // WM_SIZE that CreateWindow() sends already arrives before the first
-          // frame, so the flag this used to check was always set by the time we
-          // got here. Doing it unconditionally is safe either way - at worst it
-          // is one extra nudge, and it is cheap once the engine is running.
-          ForceChildRefresh();
-          KillTimer(hwnd, kForceRedrawTimerId);
         } else if (++force_redraw_tries_ > kForceRedrawMaxTries) {
           // Not std::cerr: the host process only has a console when started
           // from one or under a debugger, and this fires on end-user machines.
@@ -334,13 +322,17 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
           // parameter, which MSVC flags as C4457 and /WX makes fatal.
           const std::string log_message =
               "rustdesk: Flutter window " + std::to_string(id_) +
-              " did not render its first frame, giving up.\n";
+              " did not finish its redraw, giving up.\n";
           OutputDebugStringA(log_message.c_str());
           KillTimer(hwnd, kForceRedrawTimerId);
-        } else if (force_redraw_tries_ <= kForceRedrawCheapTries) {
+        } else if (child_refresh_pending_) {
+          AwaitChildRefreshFrame();
+          flutter_controller_->ForceRedraw();
+        } else if (!first_frame_rendered_ &&
+                   force_redraw_tries_ <= kForceRedrawCheapTries) {
           flutter_controller_->ForceRedraw();
         } else {
-          ForceChildRefresh();
+          BeginChildRefresh();
         }
         return 0;
       }
@@ -380,6 +372,14 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
       return 0;
     }
     case WM_SIZE: {
+      if (child_refresh_pending_ ||
+          force_redraw_tries_ > kForceRedrawMaxTries) {
+        ++child_refresh_generation_;
+        child_refresh_pending_ = false;
+        child_refresh_ui_ready_ = false;
+        force_redraw_tries_ = 0;
+        SetTimer(hwnd, kForceRedrawTimerId, kForceRedrawIntervalMs, nullptr);
+      }
       RECT rect;
       GetClientRect(window_handle_, &rect);
       if (child_content_ != nullptr) {
@@ -466,6 +466,86 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
   }
 
   return DefWindowProc(window_handle_, message, wparam, lparam);
+}
+
+void FlutterWindow::BeginChildRefresh() {
+  RECT rect;
+  if (!GetClientRect(window_handle_, &rect) || rect.right <= 0 ||
+      rect.bottom <= 0) {
+    return;
+  }
+  const auto generation = ++child_refresh_generation_;
+  child_refresh_pending_ = true;
+  child_refresh_ui_ready_ = false;
+  if (!SetWindowPos(flutter_controller_->view()->GetNativeWindow(), nullptr,
+                    0, 0, rect.right + 1, rect.bottom,
+                    SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE |
+                        SWP_NOACTIVATE | SWP_FRAMECHANGED)) {
+    child_refresh_pending_ = false;
+    OutputDebugStringA("rustdesk: failed to resize the Flutter child.\n");
+    return;
+  }
+
+  // A frame callback alone may still belong to an old-size frame. This reply
+  // passes through Dart's UI thread after the metrics update, so all old-size
+  // frames are queued on the raster thread before we register the callback.
+  flutter::EncodableValue args;
+  window_channel_->InvokeMethod(
+      id_, "__window_resize_barrier", &args,
+      std::make_unique<flutter::MethodResultFunctions<>>(
+          [this, generation](const flutter::EncodableValue*) {
+            if (destroyed_ || generation != child_refresh_generation_ ||
+                !flutter_controller_) {
+              return;
+            }
+            child_refresh_ui_ready_ = true;
+            force_redraw_tries_ = 0;
+            SetTimer(window_handle_, kForceRedrawTimerId,
+                     kForceRedrawIntervalMs, nullptr);
+            AwaitChildRefreshFrame();
+          },
+          [this, generation](const std::string&, const std::string&,
+                             const flutter::EncodableValue*) {
+            if (generation == child_refresh_generation_) {
+              child_refresh_pending_ = false;
+              OutputDebugStringA("rustdesk: Flutter resize barrier failed.\n");
+            }
+          },
+          [this, generation]() {
+            if (generation == child_refresh_generation_) {
+              child_refresh_pending_ = false;
+              OutputDebugStringA("rustdesk: Flutter resize barrier missing.\n");
+            }
+          }));
+}
+
+void FlutterWindow::AwaitChildRefreshFrame() {
+  if (!child_refresh_pending_ || !child_refresh_ui_ready_ ||
+      !first_frame_rendered_ || child_refresh_frame_pending_ ||
+      !flutter_controller_ || destroyed_) {
+    return;
+  }
+  const auto generation = child_refresh_generation_;
+  child_refresh_frame_pending_ = true;
+  flutter_controller_->engine()->SetNextFrameCallback([this, generation]() {
+    child_refresh_frame_pending_ = false;
+    if (destroyed_ || generation != child_refresh_generation_ ||
+        !flutter_controller_) {
+      return;
+    }
+    child_refresh_pending_ = false;
+    child_refresh_ui_ready_ = false;
+    KillTimer(window_handle_, kForceRedrawTimerId);
+    RECT rect;
+    if (!GetClientRect(window_handle_, &rect) ||
+        !SetWindowPos(flutter_controller_->view()->GetNativeWindow(), nullptr,
+                      0, 0, rect.right, rect.bottom,
+                      SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_NOMOVE |
+                          SWP_NOACTIVATE | SWP_FRAMECHANGED)) {
+      OutputDebugStringA("rustdesk: failed to restore the Flutter child.\n");
+    }
+  });
+  flutter_controller_->ForceRedraw();
 }
 
 void FlutterWindow::tryInvokeChannelOnDestroy()

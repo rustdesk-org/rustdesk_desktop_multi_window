@@ -71,6 +71,14 @@ class FlutterWindow : public BaseFlutterWindow {
   // Number of force-redraw attempts made so far.
   UINT force_redraw_tries_ = 0;
 
+  bool child_refresh_pending_ = false;
+  bool child_refresh_ui_ready_ = false;
+  bool child_refresh_frame_pending_ = false;
+  uint64_t child_refresh_generation_ = 0;
+
+  void BeginChildRefresh();
+  void AwaitChildRefreshFrame();
+
   static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
   static FlutterWindow *GetThisFromHandle(HWND window) noexcept;
