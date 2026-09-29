@@ -292,10 +292,6 @@ LRESULT FlutterWindow::MessageHandler(HWND hwnd, UINT message, WPARAM wparam, LP
     }
     case WM_SHOWWINDOW: {
       if (wparam == TRUE) {
-        // FancyZones startup placement can leave the Flutter view hidden.
-        if (child_content_ != nullptr) {
-          ShowWindow(child_content_, SW_SHOWNOACTIVATE);
-        }
         // The window is created hidden and shown by the Dart side later, which
         // may be long after the creation-time force-redraw timer has given up,
         // and FancyZones moves windows exactly when they are shown. Re-arm the
