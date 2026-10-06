@@ -31,6 +31,8 @@ public:
 
   void SetFullscreen(bool fullscreen);
 
+  void SetFullDesktopScreen(bool fullscreen);
+
   void Close();
 
   void SetTitle(const std::string &title);
@@ -81,6 +83,7 @@ public:
 protected:
   virtual GtkWindow *GetWindow() = 0;
 private:
+  void ActivateDesktopFullScreen(bool on);
 };
 
 gboolean onWindowEventAfter(GtkWidget *text_view, GdkEvent *event,

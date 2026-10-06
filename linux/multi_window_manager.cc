@@ -167,6 +167,15 @@ void MultiWindowManager::SetFullscreen(int64_t id, bool fullscreen) {
   UNLOCK_WINDOW;
 }
 
+void MultiWindowManager::SetFullDesktopScreen(int64_t id, bool fullscreen) {
+  RLOCK_WINDOW;
+  auto window = windows_.find(id);
+  if (window != windows_.end()) {
+    window->second->SetFullDesktopScreen(fullscreen);
+  }
+  UNLOCK_WINDOW;
+}
+
 void MultiWindowManager::SetFrame(int64_t id, double x, double y, double width, double height) {
   RLOCK_WINDOW;
   auto window = windows_.find(id);

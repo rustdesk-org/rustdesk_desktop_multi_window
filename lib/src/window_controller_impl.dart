@@ -99,6 +99,12 @@ class WindowControllerMainImpl extends WindowController {
   }
 
   @override
+  Future<void> setFullDesktopScreen(bool fullscreen) {
+    return _channel.invokeMethod('setFullDesktopScreen',
+        <String, dynamic>{'windowId': _id, 'fullscreen': fullscreen});
+  }
+
+  @override
   Future<void> startDragging() {
     return _channel.invokeMethod('startDragging', _id);
   }
